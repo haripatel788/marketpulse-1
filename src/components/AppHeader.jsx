@@ -1,22 +1,22 @@
 export default function AppHeader({ input, onInputChange, onSearch, onAddWatch }) {
   return (
-    <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <header className="rounded-xl border border-[#2A2F39] bg-[#0F131A] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-            MarketPulse
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#73819A]">
+            MarketPulse // Desk
           </p>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Market Dashboard
+          <h1 className="font-mono text-2xl font-semibold text-[#E8EDF8]">
+            Live Execution Terminal
           </h1>
-          <p className="text-sm text-slate-500">
-            Real-time quote tracking, watchlists, and simulator trades.
+          <p className="font-mono text-xs text-[#95A0B4]">
+            Real-time feed, discretionary execution simulator, and blotter analytics.
           </p>
         </div>
 
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
           <input
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 outline-none transition focus:border-slate-500"
+            className="w-full rounded border border-[#2A2F39] bg-[#0B0F15] px-3 py-2 font-mono text-sm uppercase text-[#D5DEF0] outline-none transition focus:border-[#4CC9F0]"
             value={input}
             onChange={(event) => onInputChange(event.target.value.toUpperCase())}
             placeholder="Ticker (e.g. AAPL)"
@@ -24,13 +24,13 @@ export default function AppHeader({ input, onInputChange, onSearch, onAddWatch }
           />
           <button
             onClick={onSearch}
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+            className="rounded border border-[#225980] bg-[#12314A] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-[#9AD7FF] transition hover:bg-[#184567]"
           >
-            Search
+            Load Symbol
           </button>
           <button
             onClick={onAddWatch}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+            className="rounded border border-[#30405A] bg-[#151D2A] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-[#B5C3DB] transition hover:bg-[#1B2638]"
           >
             Add Watch
           </button>

@@ -1,12 +1,11 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+import { fileURLToPath } from "node:url";
 
 const BASE_URL = "https://finnhub.io/api/v1";
 
-function marketApiPlugin() {
+function marketApiPlugin(apiKey) {
   async function handleMarketRequest(req, res) {
-    const apiKey = globalThis.process?.env?.FINNHUB_API_KEY;
-
     if (!apiKey) {
       res.statusCode = 500;
       res.setHeader("Content-Type", "application/json");
@@ -31,6 +30,11 @@ function marketApiPlugin() {
     }
 
     try {
+      const now = Math.floor(Date.now() / 1000);
+      const oneDay = 60 * 60 * 24;
+      const from = String(now - oneDay * 30);
+      const to = String(now);
+
       const quoteUrl = new URL(`${BASE_URL}/quote`);
       quoteUrl.searchParams.set("symbol", symbol);
       quoteUrl.searchParams.set("token", apiKey);
@@ -39,16 +43,51 @@ function marketApiPlugin() {
       newsUrl.searchParams.set("category", "general");
       newsUrl.searchParams.set("token", apiKey);
 
-      const [quoteRes, newsRes] = await Promise.all([
+      const candleUrl = new URL(`${BASE_URL}/stock/candle`);
+      candleUrl.searchParams.set("symbol", symbol);
+      candleUrl.searchParams.set("resolution", "D");
+      candleUrl.searchParams.set("from", from);
+      candleUrl.searchParams.set("to", to);
+      candleUrl.searchParams.set("token", apiKey);
+
+      const [quoteRes, newsRes, candleRes] = await Promise.all([
         fetch(quoteUrl),
         fetch(newsUrl),
+        fetch(candleUrl),
       ]);
 
-      if (!quoteRes.ok || !newsRes.ok) {
-        throw new Error("Market provider request failed.");
+      if (!quoteRes.ok) {
+        const reason = await quoteRes.text();
+        throw new Error(
+          `Quote feed unavailable (${quoteRes.status}). ${
+            reason || "Check your Finnhub key or limits."
+          }`
+        );
       }
 
-      const [quote, news] = await Promise.all([quoteRes.json(), newsRes.json()]);
+      const quote = await quoteRes.json();
+
+      let news = [];
+      if (newsRes.ok) {
+        news = await newsRes.json();
+      }
+
+      let candles = null;
+      if (candleRes.ok) {
+        candles = await candleRes.json();
+      }
+
+      const candlePoints =
+        candles?.s === "ok" && Array.isArray(candles.t) && Array.isArray(candles.c)
+          ? candles.t.map((timestamp, index) => ({
+              timestamp,
+              close: candles.c[index],
+              high: candles.h?.[index],
+              low: candles.l?.[index],
+              open: candles.o?.[index],
+              volume: candles.v?.[index],
+            }))
+          : [];
 
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
@@ -56,15 +95,21 @@ function marketApiPlugin() {
         JSON.stringify({
           quote,
           news: Array.isArray(news) ? news : [],
+          candles: candlePoints,
           lastUpdated: new Date().toISOString(),
         })
       );
-    } catch {
-      res.statusCode = 502;
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to fetch market data right now. Please retry.";
+      const clientError = /Quote feed unavailable/.test(message);
+      res.statusCode = clientError ? 503 : 502;
       res.setHeader("Content-Type", "application/json");
       res.end(
         JSON.stringify({
-          error: "Unable to fetch market data right now. Please retry.",
+          error: message,
         })
       );
     }
@@ -85,6 +130,12 @@ function marketApiPlugin() {
   };
 }
 
-export default defineConfig({
-  plugins: [react(), marketApiPlugin()],
+export default defineConfig(({ mode }) => {
+  const rootDir = fileURLToPath(new URL(".", import.meta.url));
+  const env = loadEnv(mode, rootDir, "");
+  const apiKey = env.FINNHUB_API_KEY || "";
+
+  return {
+    plugins: [react(), marketApiPlugin(apiKey)],
+  };
 });

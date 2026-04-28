@@ -2,13 +2,13 @@ import { formatTime } from "../utils/format";
 
 export default function OverviewPanel({ ticker, watchlistSize, lastUpdated }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900">Market Overview</h2>
-      <div className="mt-3 space-y-2 text-sm text-slate-600">
-        <p>Tracking: {ticker}</p>
-        <p>Watchlist size: {watchlistSize}</p>
-        <p>Feed mode: live market snapshot</p>
-        <p>Last update: {formatTime(lastUpdated)}</p>
+    <section className="rounded-xl border border-[#2A2F39] bg-[#0F131A] p-4">
+      <h2 className="font-mono text-sm uppercase tracking-[0.2em] text-[#95A0B4]">Desk Status</h2>
+      <div className="mt-3 space-y-2 font-mono text-xs text-[#B7C3D8]">
+        <p>ACTIVE SYMBOL // {ticker}</p>
+        <p>WATCHLIST COUNT // {watchlistSize}</p>
+        <p>FEED MODE // LIVE SNAPSHOT</p>
+        <p>LAST HEARTBEAT // {formatTime(lastUpdated)}</p>
       </div>
     </section>
   );

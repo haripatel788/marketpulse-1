@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 export function useMarketData(symbol) {
   const [quote, setQuote] = useState(null);
   const [news, setNews] = useState([]);
+  const [candles, setCandles] = useState([]);
   const [error, setError] = useState("");
   const [lastUpdated, setLastUpdated] = useState("");
 
@@ -15,6 +16,7 @@ export function useMarketData(symbol) {
 
     async function request() {
       try {
+        setError("");
         const response = await fetch(`/api/market?symbol=${symbol}`, {
           signal: controller.signal,
         });
@@ -28,6 +30,15 @@ export function useMarketData(symbol) {
 
         setQuote(payload.quote || null);
         setNews(Array.isArray(payload.news) ? payload.news : []);
+        const normalizedCandles = Array.isArray(payload.candles)
+          ? payload.candles
+              .filter(
+                (point) =>
+                  typeof point?.timestamp === "number" && typeof point?.close === "number"
+              )
+              .sort((a, b) => a.timestamp - b.timestamp)
+          : [];
+        setCandles(normalizedCandles);
         setLastUpdated(payload.lastUpdated || "");
       } catch (err) {
         if (err.name !== "AbortError") {
@@ -40,5 +51,5 @@ export function useMarketData(symbol) {
     return () => controller.abort();
   }, [symbol]);
 
-  return { quote, news, error, lastUpdated };
+  return { quote, news, candles, error, lastUpdated };
 }

@@ -3,15 +3,15 @@ import { formatPercent, formatPrice } from "../utils/format";
 function StatCard({ label, value, tone = "neutral" }) {
   const toneClass =
     tone === "positive"
-      ? "text-emerald-600"
+      ? "text-[#39D98A]"
       : tone === "negative"
-        ? "text-red-600"
-        : "text-slate-900";
+        ? "text-[#FF5D5D]"
+        : "text-[#E8EDF8]";
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={`mt-1 text-2xl font-semibold ${toneClass}`}>{value}</p>
+    <div className="rounded border border-[#2A2F39] bg-[#0F131A] p-3">
+      <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#73819A]">{label}</p>
+      <p className={`mt-1 font-mono text-2xl ${toneClass}`}>{value}</p>
     </div>
   );
 }
