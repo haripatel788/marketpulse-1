@@ -1,16 +1,36 @@
-# React + Vite
+# MarketPulse
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+MarketPulse is a lightweight market dashboard with watchlist tracking, live quote data, market news, and a simple trade simulator.
 
-Currently, two official plugins are available:
+## What's Improved
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Refactored from one large `App.jsx` into smaller UI and hook modules.
+- Added server-side market data proxy (`/api/market`) so API keys are not exposed to browsers.
+- Added request cancellation and stale request protection to avoid race-condition bugs while searching quickly.
+- Added visible loading and error states.
+- Upgraded trade simulator to support quantity-based buys.
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Install dependencies:
 
-## Expanding the ESLint configuration
+   ```bash
+   npm install
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Create `.env` (or copy from `.env.example`) and add:
+
+   ```bash
+   FINNHUB_API_KEY=your_finnhub_key_here
+   ```
+
+3. Start dev server:
+
+   ```bash
+   npm run dev
+   ```
+
+## Notes
+
+- The frontend calls `/api/market?symbol=...`; the server route injects `FINNHUB_API_KEY`.
+- If your old key was committed/exposed, rotate it in Finnhub before reusing this project.
